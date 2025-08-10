@@ -1,6 +1,7 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Main from "./pages/Main";
 import Login from "./pages/Login";
+import My from "./pages/My";
 import Search from "./pages/Search";
 import ChatBot from "./pages/ChatBot";
 import DetailPage from "./pages/DetailPage";
@@ -11,11 +12,12 @@ function App() {
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<Main />} />
-        <Route path="/Login" element={<Login />} />
-        <Route path="/Search" element={<Search />} />
-        <Route path="/ChatBot" element={<ChatBot />} />
-        <Route path="/DetailPage" element={<DetailPage />} />
-        <Route path="/FestivalReg" element={<FestivalReg />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/my" element={<My />} />
+        <Route path="/search" element={<Search />} />
+        <Route path="/chatbot" element={<ChatBot />} />
+        <Route path="/detail" element={<DetailPage />} />
+        <Route path="/festivalreg" element={<FestivalReg />} />
       </Routes>
     </BrowserRouter>
   );
