@@ -1,8 +1,8 @@
-import React from "react";
+import React, { useCallback, useState, useEffect } from "react";
 import styled from "styled-components";
 import GoogleLogo from "../assets/GoogleLogo.png";
 import KakaoLogo from "../assets/KakaoLogo.png";
-
+// import { loginWithIdToken, fetchMe } from "../api/auth";
 
 const Container = styled.div`
     align-self: stretch;
@@ -73,6 +73,8 @@ const GoogleButton = styled(Btn)`
     border: 2px solid #111;
     margin-top: 14px;
 `;
+
+
 
 function Login() {
     return (
