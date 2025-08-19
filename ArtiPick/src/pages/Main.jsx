@@ -78,7 +78,7 @@ const CardInfo = styled.div`
   margin-top: 0.2rem;
 `;
 
-const API_BASE_URL = import.meta.env.VITE_API_KEY;
+const API_BASE_URL = import.meta.env.VITE_API_URL;
 
 function Main() {
   const [weather, setWeather] = useState(null);

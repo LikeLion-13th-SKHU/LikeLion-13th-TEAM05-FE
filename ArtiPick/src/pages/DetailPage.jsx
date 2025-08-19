@@ -1,5 +1,7 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import styled from "styled-components";
+import { useParams } from "react-router-dom";
+import axios from "axios";
 import { FaCalendarAlt, FaMapMarkerAlt } from "react-icons/fa";
 import { FiPhone, FiGlobe } from "react-icons/fi";
 
@@ -134,11 +136,28 @@ const Reviewer = styled.p`
 `;
 
 function DetailPage() {
-  const [reviews, setReviews] = useState([
-    "너무 즐거운 시간이었어요! 배우들 연기가 인상적이고 재해석한 부분이 흥미로웠습니다. 대만족 추천! 간단한 감탄 가득합니다.",
-    "대학로에서 보기 좋은 연극이에요. 연출이 색다르고 배우들의 연기도 뛰어났습니다.",
-  ]);
+  const { culturesId } = useParams();
+  const [data, setData] = useState(null);
+  const [reviews, setReviews] = useState([]);
   const [input, setInput] = useState("");
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const res = await axios.get(
+          `${import.meta.env.VITE_API_URL}/api/cultures/${culturesId}`
+        );
+        setData(res.data);
+        if (res.data.reviews) {
+          setReviews(res.data.reviews);
+        }
+      } catch (err) {
+        console.error("데이터 불러오기 실패:", err);
+      }
+    };
+
+    fetchData();
+  }, [culturesId]);
 
   const handleAddReview = () => {
     if (!input.trim()) return;
@@ -146,22 +165,40 @@ function DetailPage() {
     setInput("");
   };
 
+  // 저장하기
+  const handleBookMark = async () => {
+    try {
+      const res = await axios.post(
+        `${import.meta.env.VITE_API_URL}/api/cultures/likes/${culturesId}`
+      );
+      console.log("저장 성공:", res.data);
+      alert("저장되었습니다!");
+    } catch (err) {
+      console.error("저장 실패:", err);
+      alert("저장에 실패했습니다.");
+    }
+  };
+
+  if (!data) return <Container>로딩 중...</Container>;
+
   return (
     <Container>
-      <Category>연극</Category>
-      <Title>햄릿 - 현대적 재해석</Title>
+      <Category>{data.category}</Category>
+      <Title>{data.title}</Title>
 
       <Info>
         <InfoItem>
           <FaCalendarAlt color="#EF4444" />
-          <span>기간: 12월 15일</span>
+          <span>
+            기간: {data.startDate}~{data.endDate}
+          </span>
         </InfoItem>
 
         <InfoItem>
           <FaMapMarkerAlt color="#EF4444" />
           <div>
-            <p>위치: 대학로 소극장</p>
-            <SubText>03086 서울시 종로구 대학로 10길 17 대학로예술극장</SubText>
+            <p>위치: {data.place}</p>
+            <SubText>{data.placeAddr}</SubText>
           </div>
         </InfoItem>
 
@@ -173,16 +210,16 @@ function DetailPage() {
         <InfoItem>
           <FiGlobe />
           <WebLink
-            href="https://theater.arko.or.kr"
+            href={data.placeUrl}
             target="_blank"
             rel="noopener noreferrer"
           >
-            https://theater.arko.or.kr
+            {data.placeUrl}
           </WebLink>
         </InfoItem>
       </Info>
 
-      <SaveButton>저장하기</SaveButton>
+      <SaveButton onClick={handleBookMark}>저장하기</SaveButton>
 
       <ReviewInputWrapper>
         <ReviewInput
