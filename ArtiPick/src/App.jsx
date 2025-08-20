@@ -45,7 +45,7 @@ function App() {
             <Route path="/my" element={<My />} />
             <Route path="/search" element={<Search />} />
             <Route path="/chatbot" element={<ChatBot />} />
-            <Route path="/detail" element={<DetailPage />} />
+            <Route path="/detail/:culturesId" element={<DetailPage />} />
             <Route path="/festivalreg" element={<FestivalReg />} />
           </Routes>
         </Content>

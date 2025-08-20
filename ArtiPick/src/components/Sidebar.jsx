@@ -2,20 +2,22 @@ import React from "react";
 import styled from "styled-components";
 import { Link } from "react-router-dom";
 
+// Overlay
 const Overlay = styled.div`
   position: fixed;
   inset: 0;
   background: #00000066;
-  opacity: ${({ isOpen }) => (isOpen ? 1 : 0)};
-  visibility: ${({ isOpen }) => (isOpen ? "visible" : "hidden")};
+  opacity: ${({ $isOpen }) => ($isOpen ? 1 : 0)};
+  visibility: ${({ $isOpen }) => ($isOpen ? "visible" : "hidden")};
   transition: 0.3s;
   z-index: 9;
 `;
 
+// Sidebar
 const SidebarWrapper = styled.aside`
   position: fixed;
   top: 0;
-  right: ${({ isOpen }) => (isOpen ? "0" : "-250px")};
+  right: ${({ $isOpen }) => ($isOpen ? "0" : "-250px")};
   width: 250px;
   background: #fff;
   box-shadow: -2px 0 8px #00000019;
@@ -24,6 +26,7 @@ const SidebarWrapper = styled.aside`
   z-index: 10;
 `;
 
+// Close Button
 const CloseButton = styled.button`
   background: none;
   border: none;
@@ -32,6 +35,7 @@ const CloseButton = styled.button`
   cursor: pointer;
 `;
 
+// Navigation
 const Nav = styled.nav`
   ul {
     list-style: none;
@@ -54,8 +58,8 @@ const StyledLink = styled(Link)`
 function Sidebar({ isOpen, onClose }) {
   return (
     <>
-      <Overlay isOpen={isOpen} onClick={onClose} />
-      <SidebarWrapper isOpen={isOpen}>
+      <Overlay $isOpen={isOpen} onClick={onClose} />
+      <SidebarWrapper $isOpen={isOpen}>
         <CloseButton onClick={onClose}>X</CloseButton>
         <Nav>
           <ul>
