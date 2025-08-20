@@ -1,21 +1,24 @@
-// import { api } from "./client";
+import { api } from "./client";
 
-// export async function loginWithIdToken(idToken) {
-//     const { data } = await api.post(
-//         "/auth/login",
-//         {},
-//         { headers: { id_token: idToken } }
-//     );
+export function saveTokens({ accessToken, refreshToken }) {
+  if (accessToken)
+    localStorage.setItem("accessToken", accessToken);
+  if (refreshToken)
+    localStorage.setItem("refreshToken", refreshToken);
+}
 
-//     const { accessToken, refreshToken } = data?.data ?? {};
-//     if (accessToken) localStorage.setItem("accessToken", accessToken);
-//     if (refreshToken) localStorage.setItem("refreshToken", refreshToken);
+export async function loginWithIdToken(idToken) {
+  const res = await api.post(
+    "/auth/login",
+    {},
+    { headers: { id_token: idToken } }
+  );
+  const { accessToken, refreshToken } = res.data?.data ?? {};
+  saveTokens({ accessToken, refreshToken });
+  return { accessToken, refreshToken };
+}
 
-//     return { accessToken, refreshToken };
-
-// }
-
-// export async function fetchMe() {
-//     const { data } = await api.get("/auth/me");
-//     return data?.data;
-// }
+export async function fetchMe() {
+  const { data } = await api.get("/auth/me");
+  return data?.data;
+}
