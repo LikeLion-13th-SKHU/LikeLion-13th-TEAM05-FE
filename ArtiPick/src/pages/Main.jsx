@@ -94,7 +94,7 @@ function Main() {
 
           // 백엔드에 위치 전송
           axios
-            .get(`${API_BASE_URL}/api/weather/current`, {
+            .get(`${VITE_API_URL}/api/weather/current`, {
               params: { lat: latitude, lon: longitude },
             })
             .then((res) => {
