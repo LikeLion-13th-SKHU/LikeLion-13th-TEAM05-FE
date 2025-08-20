@@ -86,31 +86,25 @@ function Main() {
   const [location, setLocation] = useState({ latitude: null, longitude: null });
 
   useEffect(() => {
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        (pos) => {
-          const { latitude, longitude } = pos.coords;
-          setLocation({ latitude, longitude });
+    if (!navigator.geolocation) return console.error("위치 서비스 미지원");
 
-          // 서버 요구사항에 맞게 latitude / longitude 전송
-          axios
-            .get(`${API_BASE_URL}/api/weather/current`, {
-              params: { latitude, longitude },
-            })
-            .then((res) => {
-              setWeather(res.data);
-            })
-            .catch((err) => {
-              console.error("날씨 정보 가져오기 실패:", err);
-            });
-        },
-        (err) => {
-          console.error("위치 정보를 가져올 수 없습니다:", err);
+    navigator.geolocation.getCurrentPosition(
+      async (pos) => {
+        const { latitude, longitude } = pos.coords;
+        setLocation({ latitude, longitude });
+
+        try {
+          const res = await axios.get(`${API_BASE_URL}/api/weather/current`, {
+            params: { longitude, latitude }, // 순서 바꿔보기
+          });
+          console.log(res.data);
+          setWeather(res.data.data); // data 안에 실제 날씨가 있음
+        } catch (err) {
+          console.error("날씨 정보 가져오기 실패:", err.response || err);
         }
-      );
-    } else {
-      console.error("이 브라우저에서는 위치 서비스를 지원하지 않습니다.");
-    }
+      },
+      (err) => console.error("위치 정보 가져오기 실패:", err)
+    );
   }, []);
 
   return (
