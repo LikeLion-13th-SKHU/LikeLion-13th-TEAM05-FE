@@ -74,11 +74,12 @@ const MyPage = () => {
       const headers = getAuthHeaders();
       if (!headers.Authorization) return;
 
-      const res = await axios.get(`${API_BASE_URL}/api/interest-categories`, {
-        headers,
-      });
-      console.log("관심 카테고리 API 응답:", res.data);
-      setSelectedCategories(Array.isArray(res.data.data) ? res.data.data : []);
+      const res = await axios.get(`${API_BASE_URL}/api/me`, { headers });
+      console.log("사용자 정보 API 응답:", res.data);
+
+      // 응답에서 interestedCategories만 추출
+      const categories = res.data.data?.interestedCategories;
+      setSelectedCategories(Array.isArray(categories) ? categories : []);
     } catch (err) {
       console.error("관심 카테고리 불러오기 실패:", err);
       setSelectedCategories([]);
