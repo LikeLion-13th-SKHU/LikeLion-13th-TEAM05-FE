@@ -4,6 +4,8 @@ import { FaMapMarkerAlt, FaCalendarAlt } from "react-icons/fa";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 
+const API_BASE_URL = import.meta.env.VITE_API_URL;
+
 const MyPage = () => {
   const [userName, setUserName] = useState("");
   const [email, setEmail] = useState("");
@@ -23,19 +25,27 @@ const MyPage = () => {
     "아동/가족",
   ];
 
+  // Axios 공통 헤더
+  const getAuthHeaders = () => {
+    const token = localStorage.getItem("accessToken"); // 토큰 이름 확인
+    console.log("헤더로 보낼 토큰:", token);
+    return token ? { Authorization: `Bearer ${token}` } : {};
+  };
+
   // 로그인한 사용자 정보 가져오기
   const fetchUserInfo = async () => {
     try {
-      const token = localStorage.getItem("access_token");
-      if (!token) return;
+      const headers = getAuthHeaders();
+      if (!headers.Authorization) {
+        console.warn("사용자 토큰이 없습니다.");
+        return;
+      }
 
-      const res = await axios.get(`${import.meta.env.VITE_API_URL}/auth/me`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-
+      const res = await axios.get(`${API_BASE_URL}/auth/me`, { headers });
+      console.log("사용자 정보 API 응답:", res.data);
       const user = res.data.data;
-      setUserName(user.name || "사용자");
-      setEmail(user.email || "");
+      setUserName(user?.name || "사용자");
+      setEmail(user?.email || "");
     } catch (err) {
       console.error("사용자 정보 가져오기 실패:", err);
     }
@@ -44,48 +54,47 @@ const MyPage = () => {
   // 북마크한 행사 가져오기
   const fetchBookmarkedEvents = async () => {
     try {
-      const token = localStorage.getItem("access_token");
-      if (!token) return;
+      const headers = getAuthHeaders();
+      if (!headers.Authorization) return;
 
-      const res = await axios.get(
-        `${import.meta.env.VITE_API_URL}/api/me/location`,
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
-
-      setEvents(res.data.data || []);
+      const res = await axios.get(`${API_BASE_URL}/api/me/location`, {
+        headers,
+      });
+      console.log("북마크 API 응답:", res.data);
+      setEvents(Array.isArray(res.data.data) ? res.data.data : []);
     } catch (err) {
       console.error("북마크 행사 불러오기 실패:", err);
+      setEvents([]);
     }
   };
 
   // 서버에서 관심 카테고리 가져오기
   const fetchInterestCategories = async () => {
     try {
-      const token = localStorage.getItem("access_token");
-      if (!token) return;
+      const headers = getAuthHeaders();
+      if (!headers.Authorization) return;
 
-      const res = await axios.get(
-        `${import.meta.env.VITE_API_URL}/api/interest-categories`,
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
-
-      // 서버에서 가져온 관심 카테고리 배열
-      setSelectedCategories(res.data.data || []);
+      const res = await axios.get(`${API_BASE_URL}/api/interest-categories`, {
+        headers,
+      });
+      console.log("관심 카테고리 API 응답:", res.data);
+      setSelectedCategories(Array.isArray(res.data.data) ? res.data.data : []);
     } catch (err) {
       console.error("관심 카테고리 불러오기 실패:", err);
+      setSelectedCategories([]);
     }
   };
 
   // 관심 카테고리 저장
   const handleSaveCategories = async () => {
     try {
-      const token = localStorage.getItem("access_token");
-      if (!token) return;
+      const headers = getAuthHeaders();
+      if (!headers.Authorization) return;
 
       await axios.post(
-        `${import.meta.env.VITE_API_URL}/api/interest-categories`,
+        `${API_BASE_URL}/api/interest-categories`,
         { categoryNames: selectedCategories },
-        { headers: { Authorization: `Bearer ${token}` } }
+        { headers }
       );
       alert("관심 카테고리가 저장되었습니다!");
     } catch (err) {
@@ -106,7 +115,6 @@ const MyPage = () => {
     );
   };
 
-  // 페이지 로드 시 사용자 정보, 북마크, 관심 카테고리 모두 가져오기
   useEffect(() => {
     fetchUserInfo();
     fetchBookmarkedEvents();
@@ -181,7 +189,7 @@ const ProfileSection = styled.div`
 `;
 
 const ProfileInfo = styled.div`
-  margin-left: 1rem;
+  margin-left: 0;
 `;
 
 const UserName = styled.h2`

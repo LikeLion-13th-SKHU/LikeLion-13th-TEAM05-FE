@@ -78,24 +78,24 @@ const CardInfo = styled.div`
   margin-top: 0.2rem;
 `;
 
+// 환경 변수 안전하게 사용
 const API_BASE_URL = import.meta.env.VITE_API_URL;
 
 function Main() {
   const [weather, setWeather] = useState(null);
-  const [location, setLocation] = useState({ lat: null, lon: null });
+  const [location, setLocation] = useState({ latitude: null, longitude: null });
 
   useEffect(() => {
-    // 사용자 브라우저에서 위치 가져오기
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         (pos) => {
           const { latitude, longitude } = pos.coords;
-          setLocation({ lat: latitude, lon: longitude });
+          setLocation({ latitude, longitude });
 
-          // 백엔드에 위치 전송
+          // 서버 요구사항에 맞게 latitude / longitude 전송
           axios
-            .get(`${VITE_API_URL}/api/weather/current`, {
-              params: { lat: latitude, lon: longitude },
+            .get(`${API_BASE_URL}/api/weather/current`, {
+              params: { latitude, longitude },
             })
             .then((res) => {
               setWeather(res.data);
