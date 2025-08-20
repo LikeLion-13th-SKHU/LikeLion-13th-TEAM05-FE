@@ -10,6 +10,7 @@ import FestivalReg from "./pages/FestivalReg";
 import Header from "./components/header";
 import Sidebar from "./components/Sidebar";
 import styled from "styled-components";
+import OidcCallback from "./pages/OidcCallback";
 
 const AppContainer = styled.div`
   width: 100%;
@@ -45,8 +46,9 @@ function App() {
             <Route path="/my" element={<My />} />
             <Route path="/search" element={<Search />} />
             <Route path="/chatbot" element={<ChatBot />} />
-            <Route path="/detail" element={<DetailPage />} />
+            <Route path="/detail/:culturesId" element={<DetailPage />} />
             <Route path="/festivalreg" element={<FestivalReg />} />
+            <Route path="/oidc-callback" element={<OidcCallback />} />
           </Routes>
         </Content>
       </AppContainer>

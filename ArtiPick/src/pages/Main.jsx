@@ -78,7 +78,7 @@ const CardInfo = styled.div`
   margin-top: 0.2rem;
 `;
 
-const API_BASE_URL = import.meta.env.VITE_API_KEY;
+const API_BASE_URL = import.meta.env.VITE_API_URL;
 
 function Main() {
   const [weather, setWeather] = useState(null);
@@ -94,7 +94,7 @@ function Main() {
 
           // 백엔드에 위치 전송
           axios
-            .get(`${API_BASE_URL}/api/weather/current`, {
+            .get(`${VITE_API_URL}/api/weather/current`, {
               params: { lat: latitude, lon: longitude },
             })
             .then((res) => {
