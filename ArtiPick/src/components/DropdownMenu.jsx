@@ -26,7 +26,7 @@ const MenuItem = styled.li`
 
   &:hover {
     background: #f5f5f5;
-    color: #20be37;
+    color: #955fdc;
     font-weight: bold;
   }
 `;
@@ -55,12 +55,12 @@ function DropdownMenu({ isOpen, onClose }) {
     <MenuList ref={menuRef} $isOpen={isOpen}>
       <MenuItem>
         <StyledLink to="/" onClick={onClose}>
-          홈
+          메인
         </StyledLink>
       </MenuItem>
       <MenuItem>
         <StyledLink to="/search" onClick={onClose}>
-          검색
+          행사 검색
         </StyledLink>
       </MenuItem>
       <MenuItem>
@@ -75,7 +75,7 @@ function DropdownMenu({ isOpen, onClose }) {
       </MenuItem>
       <MenuItem>
         <StyledLink to="/my" onClick={onClose}>
-          마이
+          마이페이지
         </StyledLink>
       </MenuItem>
     </MenuList>

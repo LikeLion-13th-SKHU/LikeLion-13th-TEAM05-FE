@@ -25,24 +25,18 @@ const MyPage = () => {
     "아동/가족",
   ];
 
-  // Axios 공통 헤더
   const getAuthHeaders = () => {
-    const token = localStorage.getItem("accessToken"); // 토큰 이름 확인
+    const token = localStorage.getItem("accessToken");
     console.log("헤더로 보낼 토큰:", token);
     return token ? { Authorization: `Bearer ${token}` } : {};
   };
 
-  // 로그인한 사용자 정보 가져오기
   const fetchUserInfo = async () => {
     try {
       const headers = getAuthHeaders();
-      if (!headers.Authorization) {
-        console.warn("사용자 토큰이 없습니다.");
-        return;
-      }
+      if (!headers.Authorization) return;
 
       const res = await axios.get(`${API_BASE_URL}/auth/me`, { headers });
-      console.log("사용자 정보 API 응답:", res.data);
       const user = res.data.data;
       setUserName(user?.name || "사용자");
       setEmail(user?.email || "");
@@ -51,7 +45,6 @@ const MyPage = () => {
     }
   };
 
-  // 북마크한 행사 가져오기
   const fetchBookmarkedEvents = async () => {
     try {
       const headers = getAuthHeaders();
@@ -60,7 +53,6 @@ const MyPage = () => {
       const res = await axios.get(`${API_BASE_URL}/api/me/location`, {
         headers,
       });
-      console.log("북마크 API 응답:", res.data);
       setEvents(Array.isArray(res.data.data) ? res.data.data : []);
     } catch (err) {
       console.error("북마크 행사 불러오기 실패:", err);
@@ -68,16 +60,12 @@ const MyPage = () => {
     }
   };
 
-  // 서버에서 관심 카테고리 가져오기
   const fetchInterestCategories = async () => {
     try {
       const headers = getAuthHeaders();
       if (!headers.Authorization) return;
 
       const res = await axios.get(`${API_BASE_URL}/api/me`, { headers });
-      console.log("사용자 정보 API 응답:", res.data);
-
-      // 응답에서 interestedCategories만 추출
       const categories = res.data.data?.interestedCategories;
       setSelectedCategories(Array.isArray(categories) ? categories : []);
     } catch (err) {
@@ -86,7 +74,6 @@ const MyPage = () => {
     }
   };
 
-  // 관심 카테고리 저장
   const handleSaveCategories = async () => {
     try {
       const headers = getAuthHeaders();
@@ -176,6 +163,7 @@ const MyPage = () => {
 
 export default MyPage;
 
+// Styled Components
 const Container = styled.div`
   max-width: 480px;
   margin: 0 auto;
@@ -262,8 +250,39 @@ const CategoryItem = styled.div`
   label {
     display: flex;
     align-items: center;
-    gap: 0.3rem;
+    gap: 0.5rem;
     font-size: 0.9rem;
+    cursor: pointer;
+
+    input[type="checkbox"] {
+      appearance: none;
+      -webkit-appearance: none;
+      width: 18px;
+      height: 18px;
+      border: 2px solid #ccc;
+      border-radius: 50%; /* 원 모양 */
+      position: relative;
+      cursor: pointer;
+      outline: none;
+      transition: all 0.2s ease;
+
+      &:checked {
+        background-color: #955fdc;
+        border-color: #955fdc;
+      }
+
+      &:checked::after {
+        content: "";
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: white;
+      }
+    }
   }
 `;
 
