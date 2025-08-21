@@ -1,5 +1,6 @@
 import React from "react";
 import styled from "styled-components";
+import { useNavigate } from "react-router-dom";
 import logo from "../assets/Logo.png";
 import menuIcon from "../assets/menu.png";
 
@@ -15,6 +16,7 @@ const HeaderWrapper = styled.header`
 const Logo = styled.img`
   height: 32px;
   margin-left: 20px;
+  cursor: pointer; /* 클릭 가능 표시 */
 `;
 
 const MenuIcon = styled.img`
@@ -25,9 +27,15 @@ const MenuIcon = styled.img`
 `;
 
 function Header({ onMenuClick }) {
+  const navigate = useNavigate(); // useNavigate 훅
+
+  const goHome = () => {
+    navigate("/"); // 홈 경로로 이동
+  };
+
   return (
     <HeaderWrapper>
-      <Logo src={logo} alt="로고" />
+      <Logo src={logo} alt="로고" onClick={goHome} />
       <MenuIcon src={menuIcon} alt="메뉴" onClick={onMenuClick} />
     </HeaderWrapper>
   );
