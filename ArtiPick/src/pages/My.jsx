@@ -27,7 +27,7 @@ const MyPage = () => {
 
   // Axios 공통 헤더
   const getAuthHeaders = () => {
-    const token = localStorage.getItem("accessToken");
+    const token = localStorage.getItem("accessToken"); // 토큰 이름 확인
     console.log("헤더로 보낼 토큰:", token);
     return token ? { Authorization: `Bearer ${token}` } : {};
   };
@@ -36,9 +36,14 @@ const MyPage = () => {
   const fetchUserInfo = async () => {
     try {
       const headers = getAuthHeaders();
-      if (!headers.Authorization) return;
+      if (!headers.Authorization) {
+        console.warn("사용자 토큰이 없습니다.");
+        return;
+      }
 
       const res = await axios.get(`${API_BASE_URL}/auth/me`, { headers });
+      console.log("사용자 정보 API 응답:", res.data);
+
       const user = res.data.data;
       setUserName(user?.name || "사용자");
       setEmail(user?.email || "");
@@ -57,6 +62,7 @@ const MyPage = () => {
         headers,
       });
       console.log("북마크 API 응답:", res.data);
+
       setEvents(Array.isArray(res.data.data) ? res.data.data : []);
     } catch (err) {
       console.error("북마크 행사 불러오기 실패:", err);
@@ -72,6 +78,8 @@ const MyPage = () => {
 
       const res = await axios.get(`${API_BASE_URL}/api/me`, { headers });
       console.log("사용자 정보 API 응답:", res.data);
+
+      // 응답에서 interestedCategories만 추출
       const categories = res.data.data?.interestedCategories;
       setSelectedCategories(Array.isArray(categories) ? categories : []);
     } catch (err) {
@@ -80,7 +88,6 @@ const MyPage = () => {
     }
   };
 
-  // 관심 카테고리 저장
   const handleSaveCategories = async () => {
     try {
       const headers = getAuthHeaders();
@@ -267,7 +274,7 @@ const CategoryItem = styled.div`
       width: 18px;
       height: 18px;
       border: 2px solid #ccc;
-      border-radius: 50%; /* 원 모양 */
+      border-radius: 50%;
       position: relative;
       cursor: pointer;
       outline: none;
