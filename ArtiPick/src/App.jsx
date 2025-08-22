@@ -7,6 +7,7 @@ import Search from "./pages/Search";
 import ChatBot from "./pages/ChatBot";
 import DetailPage from "./pages/DetailPage";
 import FestivalReg from "./pages/FestivalReg";
+import FestivalRegSuccess from "./pages/FestivalRegSuccess";
 import Header from "./components/header";
 import Sidebar from "./components/Sidebar";
 import styled from "styled-components";
@@ -48,6 +49,7 @@ function App() {
             <Route path="/chatbot" element={<ChatBot />} />
             <Route path="/detail/:culturesId" element={<DetailPage />} />
             <Route path="/festivalreg" element={<FestivalReg />} />
+            <Route path="/festivalreg/success" element={<FestivalRegSuccess />} />
             <Route path="/oidc-callback" element={<OidcCallback />} />
           </Routes>
         </Content>
