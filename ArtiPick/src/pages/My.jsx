@@ -25,12 +25,14 @@ const MyPage = () => {
     "아동/가족",
   ];
 
+  // Axios 공통 헤더
   const getAuthHeaders = () => {
     const token = localStorage.getItem("accessToken");
     console.log("헤더로 보낼 토큰:", token);
     return token ? { Authorization: `Bearer ${token}` } : {};
   };
 
+  // 로그인한 사용자 정보 가져오기
   const fetchUserInfo = async () => {
     try {
       const headers = getAuthHeaders();
@@ -45,6 +47,7 @@ const MyPage = () => {
     }
   };
 
+  // 북마크한 행사 가져오기
   const fetchBookmarkedEvents = async () => {
     try {
       const headers = getAuthHeaders();
@@ -53,6 +56,7 @@ const MyPage = () => {
       const res = await axios.get(`${API_BASE_URL}/api/me/location`, {
         headers,
       });
+      console.log("북마크 API 응답:", res.data);
       setEvents(Array.isArray(res.data.data) ? res.data.data : []);
     } catch (err) {
       console.error("북마크 행사 불러오기 실패:", err);
@@ -60,12 +64,14 @@ const MyPage = () => {
     }
   };
 
+  // 관심 카테고리 가져오기
   const fetchInterestCategories = async () => {
     try {
       const headers = getAuthHeaders();
       if (!headers.Authorization) return;
 
       const res = await axios.get(`${API_BASE_URL}/api/me`, { headers });
+      console.log("사용자 정보 API 응답:", res.data);
       const categories = res.data.data?.interestedCategories;
       setSelectedCategories(Array.isArray(categories) ? categories : []);
     } catch (err) {
@@ -74,6 +80,7 @@ const MyPage = () => {
     }
   };
 
+  // 관심 카테고리 저장
   const handleSaveCategories = async () => {
     try {
       const headers = getAuthHeaders();
