@@ -7,10 +7,11 @@ import Search from "./pages/Search";
 import ChatBot from "./pages/ChatBot";
 import DetailPage from "./pages/DetailPage";
 import FestivalReg from "./pages/FestivalReg";
+import FestivalRegSuccess from "./pages/FestivalRegSuccess";
 import Header from "./components/header";
-import Sidebar from "./components/Sidebar";
 import styled from "styled-components";
 import OidcCallback from "./pages/OidcCallback";
+import DropdownMenu from "./components/DropdownMenu";
 
 const AppContainer = styled.div`
   width: 100%;
@@ -31,13 +32,13 @@ const Content = styled.main`
 `;
 
 function App() {
-  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
 
   return (
     <BrowserRouter>
       <AppContainer>
-        <Header onMenuClick={() => setSidebarOpen(true)} />
-        <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
+        <Header onMenuClick={() => setIsOpen(!isOpen)} />
+        <DropdownMenu isOpen={isOpen} onClose={() => setIsOpen(false)} />
 
         <Content>
           <Routes>
@@ -48,6 +49,7 @@ function App() {
             <Route path="/chatbot" element={<ChatBot />} />
             <Route path="/detail/:culturesId" element={<DetailPage />} />
             <Route path="/festivalreg" element={<FestivalReg />} />
+            <Route path="/festivalreg/success" element={<FestivalRegSuccess />} />
             <Route path="/oidc-callback" element={<OidcCallback />} />
           </Routes>
         </Content>
