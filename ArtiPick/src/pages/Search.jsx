@@ -315,7 +315,10 @@ function normalizeItem(raw) { // 데이터 불러오기
   const end   = raw.endDate ?? "";
   const dateText = raw.dateText ?? (start && end ? `${start} ~ ${end}` : start || end || "");
   
-  const place = [raw.area, raw.sigungu].filter(Boolean).join(" ");
+  const place = 
+    (typeof raw.placeAddr === "string" && raw.placeAddr.trim()) ||
+    (typeof raw.place === "string" && raw.place.trim()) ||
+    [raw.area, raw.sigungu].filter(Boolean).join(" ");
 
   const title = raw.title;
 
