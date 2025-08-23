@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import styled from "styled-components";
 import { useParams } from "react-router-dom";
 import axios from "axios";
-import { FaCalendarAlt, FaMapMarkerAlt } from "react-icons/fa";
+import { FaCalendarAlt, FaMapMarkerAlt, FaRegBookmark } from "react-icons/fa";
 import { FiPhone, FiGlobe } from "react-icons/fi";
 
 const Container = styled.div`
@@ -28,6 +28,14 @@ const Title = styled.h1`
   text-align: center;
 `;
 
+const Image = styled.img`
+  width: 100%;
+  height: 550px;
+  border-radius: 0.5rem;
+  margin-bottom: 1rem;
+  object-fit: cover;
+`;
+
 const Info = styled.div`
   padding-left: 2.5rem;
   display: flex;
@@ -50,7 +58,7 @@ const InfoItem = styled.div`
   }
 
   div {
-    text-align: start; // 서브 텍스트 포함
+    text-align: start;
   }
 `;
 
@@ -79,6 +87,16 @@ const SaveButton = styled.button`
   text-align: center;
   display: block;
   margin: 1.5rem auto;
+`;
+
+const LikeCount = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.25rem;
+  color: #000000;
+  font-weight: bold;
+  margin-bottom: 1rem;
 `;
 
 const ReviewInputWrapper = styled.div`
@@ -124,7 +142,7 @@ const ReviewCard = styled.div`
   border-bottom: 1px solid #b6b6b6;
   padding: 0.5rem;
   font-size: 0.875rem;
-  max-width: 400px; // 카드 최대 크기 제한
+  max-width: 400px;
   text-align: center;
 `;
 
@@ -147,9 +165,9 @@ function DetailPage() {
         const res = await axios.get(
           `${import.meta.env.VITE_API_URL}/api/cultures/${culturesId}`
         );
-        setData(res.data);
-        if (res.data.reviews) {
-          setReviews(res.data.reviews);
+        setData(res.data.data);
+        if (res.data.data.reviews) {
+          setReviews(res.data.data.reviews);
         }
       } catch (err) {
         console.error("데이터 불러오기 실패:", err);
@@ -165,17 +183,23 @@ function DetailPage() {
     setInput("");
   };
 
-  // 저장하기
   const handleBookMark = async () => {
     try {
+      const token = localStorage.getItem("accessToken"); // 혹은 JWT를 가져오는 방식
       const res = await axios.post(
-        `${import.meta.env.VITE_API_URL}/api/cultures/likes/${culturesId}`
+        `${import.meta.env.VITE_API_URL}/api/cultures/likes/${culturesId}`,
+        {},
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
       );
-      console.log("저장 성공:", res.data);
-      alert("저장되었습니다!");
+      alert("북마크 되었습니다!");
+      setData((prev) => ({ ...prev, likeCount: prev.likeCount + 1 }));
     } catch (err) {
-      console.error("저장 실패:", err);
-      alert("저장에 실패했습니다.");
+      console.error("북마크 실패:", err);
+      alert("북마크에 실패했습니다.");
     }
   };
 
@@ -185,6 +209,12 @@ function DetailPage() {
     <Container>
       <Category>{data.category}</Category>
       <Title>{data.title}</Title>
+
+      {data.imgUrl && <Image src={data.imgUrl} alt={data.title} />}
+
+      <LikeCount>
+        <FaRegBookmark /> {data.likeCount}
+      </LikeCount>
 
       <Info>
         <InfoItem>
@@ -204,7 +234,7 @@ function DetailPage() {
 
         <InfoItem>
           <FiPhone />
-          <span>TEL: 02-3668-0007</span>
+          <span>TEL: {data.phone}</span>
         </InfoItem>
 
         <InfoItem>
