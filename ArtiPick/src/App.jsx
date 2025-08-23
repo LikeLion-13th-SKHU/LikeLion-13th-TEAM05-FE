@@ -1,10 +1,11 @@
 import React, { useState } from "react";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Outlet } from "react-router-dom";
 import Main from "./pages/Main";
 import Login from "./pages/Login";
 import My from "./pages/My";
 import Search from "./pages/Search";
 import ChatBot from "./pages/ChatBot";
+import ChatBotHeader from "./components/ChatBotHeader";
 import DetailPage from "./pages/DetailPage";
 import FestivalReg from "./pages/FestivalReg";
 import FestivalRegSuccess from "./pages/FestivalRegSuccess";
@@ -31,29 +32,51 @@ const Content = styled.main`
   padding: 1rem;
 `;
 
+function DefaultLayout({ isOpen, setIsOpen }) {
+  return (
+    <AppContainer>
+      <Header onMenuClick={() => setIsOpen(!isOpen)} />
+      <DropdownMenu isOpen={isOpen} onClose={() => setIsOpen(false)} />
+      <Content>
+        <Outlet />
+      </Content>
+    </AppContainer>
+  );
+}
+
+function ChatBotLayout({ isOpen, setIsOpen }) {
+  return (
+    <AppContainer>
+      <ChatBotHeader title="ARTIPICK_Flag" /* onMenuClick={() => setIsOpen(!isOpen)} */ />
+      <DropdownMenu isOpen={isOpen} onClose={() => setIsOpen(false)} />
+      <Content>
+        <Outlet />
+      </Content>
+    </AppContainer>
+  );
+}
+
 function App() {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
     <BrowserRouter>
-      <AppContainer>
-        <Header onMenuClick={() => setIsOpen(!isOpen)} />
-        <DropdownMenu isOpen={isOpen} onClose={() => setIsOpen(false)} />
+      <Routes>
+        <Route element={<DefaultLayout isOpen={isOpen} setIsOpen={setIsOpen} />}>
+          <Route path="/" element={<Main />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/my" element={<My />} />
+          <Route path="/search" element={<Search />} />
+          <Route path="/detail/:culturesId" element={<DetailPage />} />
+          <Route path="/festivalreg" element={<FestivalReg />} />
+          <Route path="/festivalreg/success" element={<FestivalRegSuccess />} />
+          <Route path="/oidc-callback" element={<OidcCallback />} />
+        </Route>
 
-        <Content>
-          <Routes>
-            <Route path="/" element={<Main />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/my" element={<My />} />
-            <Route path="/search" element={<Search />} />
-            <Route path="/chatbot" element={<ChatBot />} />
-            <Route path="/detail/:culturesId" element={<DetailPage />} />
-            <Route path="/festivalreg" element={<FestivalReg />} />
-            <Route path="/festivalreg/success" element={<FestivalRegSuccess />} />
-            <Route path="/oidc-callback" element={<OidcCallback />} />
-          </Routes>
-        </Content>
-      </AppContainer>
+        <Route element={<ChatBotLayout isOpen={isOpen} setIsOpen={setIsOpen} />}>
+          <Route path="/chatbot" element={<ChatBot />} />
+        </Route>
+      </Routes>
     </BrowserRouter>
   );
 }
