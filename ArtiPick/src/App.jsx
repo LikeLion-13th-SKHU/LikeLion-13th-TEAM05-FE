@@ -62,18 +62,22 @@ function App() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route element={<DefaultLayout isOpen={isOpen} setIsOpen={setIsOpen} />}>
+        <Route
+          element={<DefaultLayout isOpen={isOpen} setIsOpen={setIsOpen} />}
+        >
           <Route path="/" element={<Main />} />
           <Route path="/login" element={<Login />} />
           <Route path="/my" element={<My />} />
           <Route path="/search" element={<Search />} />
-          <Route path="/detail/:culturesId" element={<DetailPage />} />
+          <Route path="/api/cultures/:culturesId" element={<DetailPage />} />
           <Route path="/festivalreg" element={<FestivalReg />} />
           <Route path="/festivalreg/success" element={<FestivalRegSuccess />} />
           <Route path="/oidc-callback" element={<OidcCallback />} />
         </Route>
 
-        <Route element={<ChatBotLayout isOpen={isOpen} setIsOpen={setIsOpen} />}>
+        <Route
+          element={<ChatBotLayout isOpen={isOpen} setIsOpen={setIsOpen} />}
+        >
           <Route path="/chatbot" element={<ChatBot />} />
         </Route>
       </Routes>
