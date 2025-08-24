@@ -46,7 +46,7 @@ const Btn = styled.button`
 `;
 
 function FestivalRegSuccess() {
-  const { state } = useLocation(); // { festivalId, title }
+  const { state } = useLocation();
   const navigate = useNavigate();
 
   useEffect(() => {

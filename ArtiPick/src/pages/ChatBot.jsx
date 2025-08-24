@@ -290,7 +290,7 @@ function ChatBot() {
         let list = data.map((m) => ({
           id: uuid(),
           content: normalizeContent(m.content),
-          messageType: m.messageType, // "USER" | "AI"
+          messageType: m.messageType,
           timestamp: m.timestamp,
           pending: false,
         }));
@@ -386,7 +386,7 @@ function ChatBot() {
     setInput("");
 
     try {
-      const response = await sendMessageAPI(text); // { success, data: "..." }
+      const response = await sendMessageAPI(text);
       const aiText = normalizeContent(response?.data ?? "");
       setMessages((prev) =>
         prev.map((m) =>
