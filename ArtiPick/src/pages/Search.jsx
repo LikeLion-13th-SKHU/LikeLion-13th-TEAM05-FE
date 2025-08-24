@@ -233,8 +233,6 @@ api.interceptors.response.use(
   }
 );
 
-const DEBUG = import.meta.env.DEV; // 배포 때 삭제할 예정
-
 const CATEGORY_CHIPS = [
   { key: "ALL",          label: "전체" },
   { key: "EXHIBITION",   label: "전시" },
@@ -340,9 +338,6 @@ async function fetchSearchResultsAxios({ keyword, area, sigungu, categories, pag
   params.set("page", String(page0));
   params.set("size", String(size));
 
-  if (DEBUG) // api 디버깅용 확인 코드 (삭제 예정)
-    console.log("[API][REQUEST] GET /api/search", params.toString());
-
   const { data } = await api.get("/api/search", { params });
 
   const pageObj = data.data;
@@ -394,15 +389,6 @@ function Search() {
     setError(""); // 에러 메시지
     try {
       const page0 = Math.max(0, page - 1);
-      if (DEBUG) // 파라미터 확인용 디버깅 코드 (배포시 삭제 예정)
-        console.log("[LOAD]", { 
-          keyword: query,
-          area: areaParam,
-          sigungu: sigunguParam,
-          categories: selectedCats,
-          page0,
-          size
-        });
 
       const { items, totalPages } = await fetchSearchResultsAxios({ // api 호출
         keyword: query,
