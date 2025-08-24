@@ -78,7 +78,6 @@ const CardInfo = styled.div`
   margin-top: 0.2rem;
 `;
 
-// 환경 변수 안전하게 사용
 const API_BASE_URL = import.meta.env.VITE_API_URL;
 
 function Main() {
@@ -88,7 +87,6 @@ function Main() {
   const [monthlyRecs, setMonthlyRecs] = useState([]);
 
   useEffect(() => {
-    // 날씨
     if (!navigator.geolocation) return console.error("위치 서비스 미지원");
 
     navigator.geolocation.getCurrentPosition(
@@ -98,10 +96,10 @@ function Main() {
 
         try {
           const res = await axios.get(`${API_BASE_URL}/api/weather/current`, {
-            params: { longitude, latitude }, // 순서 바꿔보기
+            params: { longitude, latitude },
           });
           console.log(res.data);
-          setWeather(res.data.data); // data 안에 실제 날씨가 있음
+          setWeather(res.data.data);
         } catch (err) {
           console.error("날씨 정보 가져오기 실패:", err.response || err);
         }
@@ -109,18 +107,16 @@ function Main() {
       (err) => console.error("위치 정보 가져오기 실패:", err)
     );
 
-    // 토큰 있으면 Authorization 헤더로 전송(관심 포함 추천), 없으면 그냥 호출
     const token = localStorage.getItem("accessToken");
-    const headers = token ? { Authorization: `Bearer ${token}` } : {};
+    const axiosConfig = token
+      ? { headers: { Authorization: `Bearer ${token}` } }
+      : {};
 
-    // 오늘의 추천
     const fetchToday = async () => {
       try {
         const res = await axios.get(
           `${API_BASE_URL}/api/recommendations/today`,
-          {
-            headers,
-          }
+          axiosConfig
         );
         const recs = Array.isArray(res.data?.data?.recommendations)
           ? res.data.data.recommendations
@@ -131,14 +127,11 @@ function Main() {
       }
     };
 
-    // 이달의 추천
     const fetchMonthly = async () => {
       try {
         const res = await axios.get(
           `${API_BASE_URL}/api/recommendations/monthly`,
-          {
-            headers,
-          }
+          axiosConfig
         );
         const recs = Array.isArray(res.data?.data?.recommendations)
           ? res.data.data.recommendations
@@ -161,7 +154,6 @@ function Main() {
 
   return (
     <Container>
-      {/* 날씨 */}
       {weather && (
         <Weather>
           <FiSun size={24} color="#FFD700" />
@@ -170,7 +162,6 @@ function Main() {
         </Weather>
       )}
 
-      {/* 오늘의 추천 */}
       <Section>
         <SectionTitle>오늘의 추천</SectionTitle>
         <CardRow>
@@ -189,7 +180,6 @@ function Main() {
         </CardRow>
       </Section>
 
-      {/* 이달의 추천 */}
       <Section>
         <SectionTitle>이달의 추천</SectionTitle>
         {monthlyRecs.map((rec, idx) => (
