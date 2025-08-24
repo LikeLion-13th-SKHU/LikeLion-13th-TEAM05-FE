@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from "react";
 import styled from "styled-components";
-import { FaMapMarkerAlt, FaCalendarAlt } from "react-icons/fa";
+import { FaMapMarkerAlt } from "react-icons/fa";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import { useBookmarkStore } from "../store/bookmarkStore";
 
 const API_BASE_URL = import.meta.env.VITE_API_URL;
 
@@ -12,6 +13,8 @@ const MyPage = () => {
   const [events, setEvents] = useState([]);
   const [selectedCategories, setSelectedCategories] = useState([]);
   const navigate = useNavigate();
+
+  const { bookmarkedIds, setBookmarkedIds } = useBookmarkStore();
 
   const categories = [
     "전시",
@@ -25,25 +28,17 @@ const MyPage = () => {
     "아동/가족",
   ];
 
-  // Axios 공통 헤더
   const getAuthHeaders = () => {
-    const token = localStorage.getItem("accessToken"); // 토큰 이름 확인
-    console.log("헤더로 보낼 토큰:", token);
+    const token = localStorage.getItem("accessToken");
     return token ? { Authorization: `Bearer ${token}` } : {};
   };
 
-  // 로그인한 사용자 정보 가져오기
   const fetchUserInfo = async () => {
     try {
       const headers = getAuthHeaders();
-      if (!headers.Authorization) {
-        console.warn("사용자 토큰이 없습니다.");
-        return;
-      }
+      if (!headers.Authorization) return;
 
       const res = await axios.get(`${API_BASE_URL}/auth/me`, { headers });
-      console.log("사용자 정보 API 응답:", res.data);
-
       const user = res.data.data;
       setUserName(user?.name || "사용자");
       setEmail(user?.email || "");
@@ -52,36 +47,30 @@ const MyPage = () => {
     }
   };
 
-  // 북마크한 행사 가져오기
   const fetchBookmarkedEvents = async () => {
     try {
       const headers = getAuthHeaders();
       if (!headers.Authorization) return;
 
-      const res = await axios.get(`${API_BASE_URL}/api/me/likes`, {
-        headers,
-      });
-      console.log("북마크 API 응답:", res.data);
-
-      // 응답에서 data.content 추출
+      const res = await axios.get(`${API_BASE_URL}/api/me/likes`, { headers });
       const content = res.data?.data?.content;
       setEvents(Array.isArray(content) ? content : []);
+
+      // Zustand 북마크 동기화
+      const ids = Array.isArray(content) ? content.map((e) => e.cultureId) : [];
+      setBookmarkedIds(ids);
     } catch (err) {
       console.error("북마크 행사 불러오기 실패:", err);
       setEvents([]);
     }
   };
 
-  // 관심 카테고리 가져오기
   const fetchInterestCategories = async () => {
     try {
       const headers = getAuthHeaders();
       if (!headers.Authorization) return;
 
       const res = await axios.get(`${API_BASE_URL}/api/me`, { headers });
-      console.log("사용자 정보 API 응답:", res.data);
-
-      // 응답에서 interestedCategories만 추출
       const categories = res.data.data?.interestedCategories;
       setSelectedCategories(Array.isArray(categories) ? categories : []);
     } catch (err) {
@@ -120,9 +109,20 @@ const MyPage = () => {
   };
 
   useEffect(() => {
-    fetchUserInfo();
-    fetchBookmarkedEvents();
-    fetchInterestCategories();
+    const fetchAll = async () => {
+      await fetchUserInfo();
+      await fetchBookmarkedEvents();
+      await fetchInterestCategories();
+      localStorage.removeItem("bookmarksUpdated");
+    };
+
+    if (localStorage.getItem("bookmarksUpdated") === "true") {
+      fetchAll();
+    } else {
+      fetchUserInfo();
+      fetchBookmarkedEvents();
+      fetchInterestCategories();
+    }
   }, []);
 
   return (
