@@ -1,10 +1,149 @@
 import React, { useState, useEffect } from "react";
 import styled from "styled-components";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
-import { FaCalendarAlt, FaMapMarkerAlt } from "react-icons/fa";
+import { FaCalendarAlt, FaMapMarkerAlt, FaRegBookmark } from "react-icons/fa";
 import { FiPhone, FiGlobe } from "react-icons/fi";
+import { useBookmarkStore } from "../store/bookmarkStore";
 
+function DetailPage() {
+  const { culturesId } = useParams();
+  const navigate = useNavigate();
+  const [data, setData] = useState(null);
+  const [reviews, setReviews] = useState([]);
+  const [input, setInput] = useState("");
+  const [likeCount, setLikeCount] = useState(0);
+
+  const { bookmarkedIds, addBookmark, removeBookmark } = useBookmarkStore();
+  const isBookmarked = bookmarkedIds.includes(Number(culturesId));
+
+  // 데이터 로드
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const res = await axios.get(
+          `${import.meta.env.VITE_API_URL}/api/cultures/${culturesId}`
+        );
+        const fetchedData = res.data.data;
+        setData(fetchedData);
+        setLikeCount(fetchedData.likeCount || 0);
+        if (fetchedData.reviews) setReviews(fetchedData.reviews);
+      } catch (err) {
+        console.error("데이터 불러오기 실패:", err);
+      }
+    };
+    fetchData();
+  }, [culturesId]);
+
+  const handleAddReview = () => {
+    if (!input.trim()) return;
+    setReviews([input, ...reviews]);
+    setInput("");
+  };
+
+  const handleBookMark = async () => {
+    const token = localStorage.getItem("accessToken");
+    if (!token) {
+      alert("로그인이 필요합니다.");
+      navigate("/login");
+      return;
+    }
+
+    try {
+      await axios.post(
+        `${import.meta.env.VITE_API_URL}/api/cultures/likes/${culturesId}`,
+        {},
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+
+      if (isBookmarked) {
+        removeBookmark(Number(culturesId));
+        setLikeCount((prev) => prev - 1);
+        alert("북마크 취소되었습니다!");
+      } else {
+        addBookmark(Number(culturesId));
+        setLikeCount((prev) => prev + 1);
+        alert("북마크 되었습니다!");
+      }
+    } catch (err) {
+      console.error("북마크 처리 실패:", err);
+      alert("북마크 처리 중 오류가 발생했습니다.");
+    }
+  };
+
+  if (!data) return <Container>로딩 중...</Container>;
+
+  return (
+    <Container>
+      <Category>{data.category}</Category>
+      <Title>{data.title}</Title>
+      {data.imgUrl && <Image src={data.imgUrl} alt={data.title} />}
+      <LikeCount>
+        <FaRegBookmark /> {likeCount}
+      </LikeCount>
+
+      <Info>
+        <InfoItem>
+          <FaCalendarAlt color="#EF4444" />
+          <span>
+            기간: {data.startDate}~{data.endDate}
+          </span>
+        </InfoItem>
+
+        <InfoItem>
+          <FaMapMarkerAlt color="#EF4444" />
+          <div>
+            <p>위치: {data.place}</p>
+            <SubText>{data.placeAddr}</SubText>
+          </div>
+        </InfoItem>
+
+        <InfoItem>
+          <FiPhone />
+          <span>TEL: {data.phone}</span>
+        </InfoItem>
+
+        <InfoItem>
+          <FiGlobe />
+          <WebLink
+            href={data.placeUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            {data.placeUrl}
+          </WebLink>
+        </InfoItem>
+      </Info>
+
+      <SaveButton onClick={handleBookMark}>
+        {isBookmarked ? "저장됨" : "저장하기"}
+      </SaveButton>
+
+      <ReviewInputWrapper>
+        <ReviewInput
+          type="text"
+          placeholder="리뷰 작성"
+          value={input}
+          onChange={(e) => setInput(e.target.value)}
+        />
+        <ReviewButton onClick={handleAddReview}>등록</ReviewButton>
+      </ReviewInputWrapper>
+
+      <ReviewList>
+        {reviews.map((review, idx) => (
+          <ReviewCard key={idx}>
+            <Reviewer>하윤</Reviewer>
+            <p>{review}</p>
+          </ReviewCard>
+        ))}
+      </ReviewList>
+    </Container>
+  );
+}
+
+export default DetailPage;
+
+// Styled Components
 const Container = styled.div`
   max-width: 480px;
   margin: 0 auto;
@@ -28,6 +167,14 @@ const Title = styled.h1`
   text-align: center;
 `;
 
+const Image = styled.img`
+  width: 100%;
+  height: 550px;
+  border-radius: 0.5rem;
+  margin-bottom: 1rem;
+  object-fit: cover;
+`;
+
 const Info = styled.div`
   padding-left: 2.5rem;
   display: flex;
@@ -43,14 +190,12 @@ const InfoItem = styled.div`
   gap: 0.5rem;
   align-items: flex-start;
   justify-content: center;
-
   svg {
     flex-shrink: 0;
     margin-top: 0.2rem;
   }
-
   div {
-    text-align: start; // 서브 텍스트 포함
+    text-align: start;
   }
 `;
 
@@ -76,9 +221,18 @@ const SaveButton = styled.button`
   color: #6b7280;
   font-size: 0.8rem;
   cursor: pointer;
-  text-align: center;
   display: block;
   margin: 1.5rem auto;
+`;
+
+const LikeCount = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.25rem;
+  color: #000000;
+  font-weight: bold;
+  margin-bottom: 1rem;
 `;
 
 const ReviewInputWrapper = styled.div`
@@ -94,7 +248,6 @@ const ReviewInput = styled.input`
   border-radius: 0.5rem;
   padding: 0.5rem 0.75rem;
   font-size: 0.875rem;
-
   &:focus {
     outline: 2px solid #a78bfa;
   }
@@ -107,7 +260,6 @@ const ReviewButton = styled.button`
   border-radius: 0.5rem;
   padding: 0 1rem;
   cursor: pointer;
-
   &:hover {
     background: #8b5cf6;
   }
@@ -124,7 +276,7 @@ const ReviewCard = styled.div`
   border-bottom: 1px solid #b6b6b6;
   padding: 0.5rem;
   font-size: 0.875rem;
-  max-width: 400px; // 카드 최대 크기 제한
+  max-width: 400px;
   text-align: center;
 `;
 
@@ -134,113 +286,3 @@ const Reviewer = styled.p`
   margin-bottom: 0.2rem;
   text-align: left;
 `;
-
-function DetailPage() {
-  const { culturesId } = useParams();
-  const [data, setData] = useState(null);
-  const [reviews, setReviews] = useState([]);
-  const [input, setInput] = useState("");
-
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const res = await axios.get(
-          `${import.meta.env.VITE_API_URL}/api/cultures/${culturesId}`
-        );
-        setData(res.data);
-        if (res.data.reviews) {
-          setReviews(res.data.reviews);
-        }
-      } catch (err) {
-        console.error("데이터 불러오기 실패:", err);
-      }
-    };
-
-    fetchData();
-  }, [culturesId]);
-
-  const handleAddReview = () => {
-    if (!input.trim()) return;
-    setReviews([input, ...reviews]);
-    setInput("");
-  };
-
-  // 저장하기
-  const handleBookMark = async () => {
-    try {
-      const res = await axios.post(
-        `${import.meta.env.VITE_API_URL}/api/cultures/likes/${culturesId}`
-      );
-      console.log("저장 성공:", res.data);
-      alert("저장되었습니다!");
-    } catch (err) {
-      console.error("저장 실패:", err);
-      alert("저장에 실패했습니다.");
-    }
-  };
-
-  if (!data) return <Container>로딩 중...</Container>;
-
-  return (
-    <Container>
-      <Category>{data.category}</Category>
-      <Title>{data.title}</Title>
-
-      <Info>
-        <InfoItem>
-          <FaCalendarAlt color="#EF4444" />
-          <span>
-            기간: {data.startDate}~{data.endDate}
-          </span>
-        </InfoItem>
-
-        <InfoItem>
-          <FaMapMarkerAlt color="#EF4444" />
-          <div>
-            <p>위치: {data.place}</p>
-            <SubText>{data.placeAddr}</SubText>
-          </div>
-        </InfoItem>
-
-        <InfoItem>
-          <FiPhone />
-          <span>TEL: 02-3668-0007</span>
-        </InfoItem>
-
-        <InfoItem>
-          <FiGlobe />
-          <WebLink
-            href={data.placeUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            {data.placeUrl}
-          </WebLink>
-        </InfoItem>
-      </Info>
-
-      <SaveButton onClick={handleBookMark}>저장하기</SaveButton>
-
-      <ReviewInputWrapper>
-        <ReviewInput
-          type="text"
-          placeholder="리뷰 작성"
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
-        />
-        <ReviewButton onClick={handleAddReview}>등록</ReviewButton>
-      </ReviewInputWrapper>
-
-      <ReviewList>
-        {reviews.map((review, idx) => (
-          <ReviewCard key={idx}>
-            <Reviewer>하윤</Reviewer>
-            <p>{review}</p>
-          </ReviewCard>
-        ))}
-      </ReviewList>
-    </Container>
-  );
-}
-
-export default DetailPage;
