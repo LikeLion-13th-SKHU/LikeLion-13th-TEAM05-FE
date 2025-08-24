@@ -58,12 +58,14 @@ const MyPage = () => {
       const headers = getAuthHeaders();
       if (!headers.Authorization) return;
 
-      const res = await axios.get(`${API_BASE_URL}/api/me/location`, {
+      const res = await axios.get(`${API_BASE_URL}/api/me/likes`, {
         headers,
       });
       console.log("북마크 API 응답:", res.data);
 
-      setEvents(Array.isArray(res.data.data) ? res.data.data : []);
+      // 응답에서 data.content 추출
+      const content = res.data?.data?.content;
+      setEvents(Array.isArray(content) ? content : []);
     } catch (err) {
       console.error("북마크 행사 불러오기 실패:", err);
       setEvents([]);
@@ -139,16 +141,13 @@ const MyPage = () => {
         ) : (
           events.map((event) => (
             <EventCard
-              key={event.eventId}
-              onClick={() => handleEventClick(event.eventId)}
+              key={event.cultureId}
+              onClick={() => handleEventClick(event.cultureId)}
             >
-              <Badge>{event.categoryName}</Badge>
-              <EventName>{event.eventName}</EventName>
+              <Badge>{event.category}</Badge>
+              <EventName>{event.title}</EventName>
               <EventInfo>
-                <FaCalendarAlt /> {event.date}
-              </EventInfo>
-              <EventInfo>
-                <FaMapMarkerAlt /> {event.location}
+                <FaMapMarkerAlt /> {event.place}
               </EventInfo>
             </EventCard>
           ))
