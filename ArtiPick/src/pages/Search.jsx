@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useCallback, useMemo } from "react";
 import styled, { keyframes } from "styled-components";
 import axios from "axios";
-// import { Link } from "react-router-dom";
+import { Link } from "react-router-dom";
 
 const Page = styled.div`
   width: 100%;
@@ -581,7 +581,7 @@ function renderPageNumbers(current, total, visible = 7) {
 function ResultCard({ item }) {
   const badgeColor = "#955FDCCC";
   return (
-    // <Link to={`/detail/${item.id}`} style={{textDecoration: "none"}} >
+    <Link to={`/detail/${item.id}`} style={{textDecoration: "none"}} >
       <Card role="article">
         <Badge style={{ background: badgeColor }}>{item.type}</Badge>
         <CardTitle>{item.title}</CardTitle>
@@ -594,7 +594,7 @@ function ResultCard({ item }) {
           <MetaText>{item.place}</MetaText>
         </MetaRow>
       </Card>
-    // </Link>
+    </Link>
   );
 }
 

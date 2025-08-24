@@ -47,7 +47,7 @@ function DefaultLayout({ isOpen, setIsOpen }) {
 function ChatBotLayout({ isOpen, setIsOpen }) {
   return (
     <AppContainer>
-      <ChatBotHeader title="ARTIPICK_Flag" /* onMenuClick={() => setIsOpen(!isOpen)} */ />
+      <ChatBotHeader title="ARTIPICK_Flag" onMenuClick={() => setIsOpen(!isOpen)} />
       <DropdownMenu isOpen={isOpen} onClose={() => setIsOpen(false)} />
       <Content>
         <Outlet />
