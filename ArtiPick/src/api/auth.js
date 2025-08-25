@@ -22,3 +22,11 @@ export async function fetchMe() {
   const { data } = await api.get("/auth/me");
   return data?.data;
 }
+
+export function clearTokens() { // 로그아웃
+  localStorage.removeItem("accessToken");
+  localStorage.removeItem("refreshToken");
+  try {
+    delete api.defaults.headers.common.Authorization;
+  } catch {}
+}

@@ -46,3 +46,14 @@ api.interceptors.response.use( // 401 오류나면 재발급 하는 과정
         return Promise.reject(error); // 또 에러가 발생하면 try catch로 돌려보내는 코드
     }
 );
+
+api.interceptors.request.use((config) => { // 로그아웃에 필요한 코드
+    const token = localStorage.getItem("accessToken");
+    if (token) {
+        config.headers = config.headers || {};
+        config.headers.Authorization = `Bearer ${token}`;
+    } else if (config?.headers?.Authorization) {
+        delete config.headers.Authorization;
+    }
+    return config;
+});
