@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import styled from "styled-components";
 import axios from "axios";
-import { FiSun } from "react-icons/fi";
+import { FiSun, FiCloud } from "react-icons/fi";
 import { FaCalendarAlt, FaMapMarkerAlt } from "react-icons/fa";
 
 const Container = styled.div`
@@ -108,9 +108,13 @@ function Main() {
     );
 
     const token = localStorage.getItem("accessToken");
-    const axiosConfig = token
-      ? { headers: { Authorization: `Bearer ${token}` } }
-      : {};
+    const axiosConfig = {
+      headers: {
+        ...(token && { Authorization: `Bearer ${token}` }),
+        Accept: "application/json",
+      },
+      withCredentials: true,
+    };
 
     const fetchToday = async () => {
       try {
@@ -156,9 +160,20 @@ function Main() {
     <Container>
       {weather && (
         <Weather>
-          <FiSun size={24} color="#FFD700" />
+          {weather.skyCondition === "1" && <FiSun size={24} color="#FFD700" />}
+          {(weather.skyCondition === "3" || weather.skyCondition === "4") && (
+            <FiCloud size={24} color="#A9A9A9" />
+          )}
+
           <Temp>{weather.temperature}</Temp>
-          <WeatherText>{weather.skyCondition}</WeatherText>
+
+          <WeatherText>
+            {weather.skyCondition === "1"
+              ? "맑음"
+              : weather.skyCondition === "3" || weather.skyCondition === "4"
+              ? "흐림"
+              : ""}
+          </WeatherText>
         </Weather>
       )}
 
