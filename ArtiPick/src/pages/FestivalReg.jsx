@@ -155,7 +155,6 @@ const CATEGORY_OPTIONS = [
 
 const LABEL_TO_ENUM = Object.fromEntries(CATEGORY_OPTIONS.map(c => [c.label, c.enum]));
 
-/* ============ 지역/시군구 (짧은 표기 유지) ============ */
 const AREA_OPTIONS = [
   "서울",
   "부산",
@@ -175,6 +174,7 @@ const AREA_OPTIONS = [
   "경남",
   "제주",
 ];
+
 const SIGUNGU_MAP = {
   서울: ["전체", "종로구", "중구", "용산구", "성동구", "광진구", "동대문구", "중랑구", "성북구", "강북구", "도봉구", "노원구", "은평구",
     "서대문구", "마포구", "양천구", "강서구", "구로구", "금천구", "영등포구", "동작구", "관악구", "서초구", "강남구", "송파구", "강동구"],
@@ -346,10 +346,10 @@ function FestivalReg() {
       title: form.title,
       startDate: form.startDate,
       endDate: form.endDate,
-      place: form.place,                 // 필수
-      placeAddr: form.address,           // 필수
+      place: form.place, // 필수
+      placeAddr: form.address, // 필수
       category: LABEL_TO_ENUM[form.category] ?? "FESTIVAL",
-      area: form.area,                   // 짧은 표기 저장
+      area: form.area, // 짧은 표기 저장
       sigungu: form.sigungu,
       price: form.price || "무료",
       placeUrl: form.placeUrl || "",

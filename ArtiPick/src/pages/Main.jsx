@@ -78,12 +78,13 @@ const CardInfo = styled.div`
   margin-top: 0.2rem;
 `;
 
-// 환경 변수 안전하게 사용
 const API_BASE_URL = import.meta.env.VITE_API_URL;
 
 function Main() {
   const [weather, setWeather] = useState(null);
   const [location, setLocation] = useState({ latitude: null, longitude: null });
+  const [todayRecs, setTodayRecs] = useState([]);
+  const [monthlyRecs, setMonthlyRecs] = useState([]);
 
   useEffect(() => {
     if (!navigator.geolocation) return console.error("위치 서비스 미지원");
@@ -95,21 +96,64 @@ function Main() {
 
         try {
           const res = await axios.get(`${API_BASE_URL}/api/weather/current`, {
-            params: { longitude, latitude }, // 순서 바꿔보기
+            params: { longitude, latitude },
           });
           console.log(res.data);
-          setWeather(res.data.data); // data 안에 실제 날씨가 있음
+          setWeather(res.data.data);
         } catch (err) {
           console.error("날씨 정보 가져오기 실패:", err.response || err);
         }
       },
       (err) => console.error("위치 정보 가져오기 실패:", err)
     );
+
+    const token = localStorage.getItem("accessToken");
+    const axiosConfig = token
+      ? { headers: { Authorization: `Bearer ${token}` } }
+      : {};
+
+    const fetchToday = async () => {
+      try {
+        const res = await axios.get(
+          `${API_BASE_URL}/api/recommendations/today`,
+          axiosConfig
+        );
+        const recs = Array.isArray(res.data?.data?.recommendations)
+          ? res.data.data.recommendations
+          : [];
+        setTodayRecs(recs);
+      } catch (err) {
+        console.error("오늘의 추천 가져오기 실패:", err.response || err);
+      }
+    };
+
+    const fetchMonthly = async () => {
+      try {
+        const res = await axios.get(
+          `${API_BASE_URL}/api/recommendations/monthly`,
+          axiosConfig
+        );
+        const recs = Array.isArray(res.data?.data?.recommendations)
+          ? res.data.data.recommendations
+          : [];
+        setMonthlyRecs(recs);
+      } catch (err) {
+        console.error("이달의 추천 가져오기 실패:", err.response || err);
+      }
+    };
+
+    fetchToday();
+    fetchMonthly();
   }, []);
+
+  const formatDateRange = (start, end) => {
+    if (!start && !end) return "";
+    if (start === end) return start;
+    return `${start || ""} ~ ${end || ""}`;
+  };
 
   return (
     <Container>
-      {/* 날씨 */}
       {weather && (
         <Weather>
           <FiSun size={24} color="#FFD700" />
@@ -118,66 +162,38 @@ function Main() {
         </Weather>
       )}
 
-      {/* 오늘의 추천 */}
       <Section>
         <SectionTitle>오늘의 추천</SectionTitle>
         <CardRow>
-          <Card>
-            <Badge color="#B197FC">전시</Badge>
-            <CardTitle>디지털 아트 페스티벌</CardTitle>
-            <CardInfo>
-              <FaCalendarAlt /> 12월 20일
-            </CardInfo>
-            <CardInfo>
-              <FaMapMarkerAlt /> 동대문 DDP
-            </CardInfo>
-          </Card>
-          <Card>
-            <Badge color="#FDA7DF">축제</Badge>
-            <CardTitle>서울 라이트 페스티벌</CardTitle>
-            <CardInfo>
-              <FaCalendarAlt /> ~12월 30일
-            </CardInfo>
-            <CardInfo>
-              <FaMapMarkerAlt /> 청계천 일대
-            </CardInfo>
-          </Card>
+          {todayRecs.slice(0, 2).map((rec) => (
+            <Card key={rec.id}>
+              <Badge color="#B197FC">{rec.category}</Badge>
+              <CardTitle>{rec.title}</CardTitle>
+              <CardInfo>
+                <FaCalendarAlt /> {formatDateRange(rec.startDate, rec.endDate)}
+              </CardInfo>
+              <CardInfo>
+                <FaMapMarkerAlt /> {rec.place}
+              </CardInfo>
+            </Card>
+          ))}
         </CardRow>
       </Section>
 
-      {/* 이달의 추천 */}
       <Section>
         <SectionTitle>이달의 추천</SectionTitle>
-        <FullCard $bg="#EDE7FF">
-          <Badge color="#B197FC">콘서트</Badge>
-          <CardTitle>윈터 클래식 콘서트</CardTitle>
-          <CardInfo>
-            <FaCalendarAlt /> 12월 25일
-          </CardInfo>
-          <CardInfo>
-            <FaMapMarkerAlt /> 세종문화회관
-          </CardInfo>
-        </FullCard>
-        <FullCard>
-          <Badge color="#FDA7DF">축제</Badge>
-          <CardTitle>독서의 밤 - 작가와의 만남</CardTitle>
-          <CardInfo>
-            <FaCalendarAlt /> 12월 18일
-          </CardInfo>
-          <CardInfo>
-            <FaMapMarkerAlt /> 교보문고 광화문점
-          </CardInfo>
-        </FullCard>
-        <FullCard>
-          <Badge color="#FDA7DF">축제</Badge>
-          <CardTitle>서울 라이트 페스티벌</CardTitle>
-          <CardInfo>
-            <FaCalendarAlt /> ~12월 30일
-          </CardInfo>
-          <CardInfo>
-            <FaMapMarkerAlt /> 청계천 일대
-          </CardInfo>
-        </FullCard>
+        {monthlyRecs.map((rec, idx) => (
+          <FullCard key={rec.id} $bg={idx === 0 ? "#EDE7FF" : undefined}>
+            <Badge color="#FDA7DF">{rec.category}</Badge>
+            <CardTitle>{rec.title}</CardTitle>
+            <CardInfo>
+              <FaCalendarAlt /> {formatDateRange(rec.startDate, rec.endDate)}
+            </CardInfo>
+            <CardInfo>
+              <FaMapMarkerAlt /> {rec.place}
+            </CardInfo>
+          </FullCard>
+        ))}
       </Section>
     </Container>
   );
