@@ -78,6 +78,11 @@ function DropdownMenu({ isOpen, onClose }) {
           마이페이지
         </StyledLink>
       </MenuItem>
+      <MenuItem>
+        <StyledLink to="/festivalreg" onClick={onClose}>
+          행사 등록
+        </StyledLink>
+      </MenuItem>
     </MenuList>
   );
 }
