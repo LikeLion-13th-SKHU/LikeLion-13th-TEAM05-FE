@@ -9,7 +9,7 @@ import ChatBotHeader from "./components/ChatBotHeader";
 import DetailPage from "./pages/DetailPage";
 import FestivalReg from "./pages/FestivalReg";
 import FestivalRegSuccess from "./pages/FestivalRegSuccess";
-import Header from "./components/header";
+import Header from "./components/Header";
 import styled from "styled-components";
 import OidcCallback from "./pages/OidcCallback";
 import DropdownMenu from "./components/DropdownMenu";
@@ -47,7 +47,10 @@ function DefaultLayout({ isOpen, setIsOpen }) {
 function ChatBotLayout({ isOpen, setIsOpen }) {
   return (
     <AppContainer>
-      <ChatBotHeader title="ARTIPICK_Flag" onMenuClick={() => setIsOpen(!isOpen)} />
+      <ChatBotHeader
+        title="ARTIPICK_Flag"
+        onMenuClick={() => setIsOpen(!isOpen)}
+      />
       <DropdownMenu isOpen={isOpen} onClose={() => setIsOpen(false)} />
       <Content>
         <Outlet />
