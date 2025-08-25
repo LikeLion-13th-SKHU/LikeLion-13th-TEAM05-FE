@@ -4,6 +4,7 @@ import { FaMapMarkerAlt } from "react-icons/fa";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { useBookmarkStore } from "../store/bookmarkStore";
+import { clearTokens, fetchMe } from "../api/auth";
 
 const API_BASE_URL = import.meta.env.VITE_API_URL;
 
@@ -125,6 +126,13 @@ const MyPage = () => {
     }
   }, []);
 
+  const handleLogout = () => {
+    clearTokens();
+    navigate('/', {replace: true});
+  }
+
+  const isLogin = !!localStorage.getItem("accessToken");
+
   return (
     <Container>
       <ProfileSection>
@@ -132,8 +140,11 @@ const MyPage = () => {
           <UserName>{userName}</UserName>
           <UserEmail>{email}</UserEmail>
         </ProfileInfo>
+        { isLogin && (
+          <LogoutButton onClick={handleLogout}>로그아웃</LogoutButton>
+        )}
       </ProfileSection>
-
+      
       <SectionTitle>내가 저장한 행사</SectionTitle>
       <EventsList>
         {events.length === 0 ? (
@@ -310,3 +321,16 @@ const SaveButton = styled.button`
   font-size: 1rem;
   cursor: pointer;
 `;
+
+const LogoutButton = styled.button`
+  width: 70px;
+  padding: 5px;
+  margin-top: 23px;
+  margin-left: 10px;
+  border: none;
+  border-radius: 8px;
+  background: #a9a9a9;
+  color: white;
+  font-size: 10px;
+  cursor: pointer;
+`
