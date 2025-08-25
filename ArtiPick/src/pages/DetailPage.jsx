@@ -59,15 +59,15 @@ function DetailPage() {
       if (isBookmarked) {
         removeBookmark(Number(culturesId));
         setLikeCount((prev) => prev - 1);
-        alert("북마크 취소되었습니다!");
+        alert("저장 취소되었습니다!");
       } else {
         addBookmark(Number(culturesId));
         setLikeCount((prev) => prev + 1);
-        alert("북마크 되었습니다!");
+        alert("저장되었습니다!");
       }
     } catch (err) {
-      console.error("북마크 처리 실패:", err);
-      alert("북마크 처리 중 오류가 발생했습니다.");
+      console.error("저장 처리 실패:", err);
+      alert("저장 처리 중 오류가 발생했습니다.");
     }
   };
 
@@ -79,7 +79,7 @@ function DetailPage() {
       <Title>{data.title}</Title>
       {data.imgUrl && <Image src={data.imgUrl} alt={data.title} />}
       <LikeCount>
-        <FaRegBookmark /> {likeCount}
+        <FaRegBookmark /> {likeCount} · 조회수 {data.viewCount}
       </LikeCount>
 
       <Info>
