@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from "react";
 import styled from "styled-components";
 import axios from "axios";
-import { FiSun } from "react-icons/fi";
+import { FiSun, FiCloud } from "react-icons/fi";
 import { FaCalendarAlt, FaMapMarkerAlt } from "react-icons/fa";
+import { Link } from "react-router-dom";
 
 const Container = styled.div`
   max-width: 480px;
@@ -108,9 +109,13 @@ function Main() {
     );
 
     const token = localStorage.getItem("accessToken");
-    const axiosConfig = token
-      ? { headers: { Authorization: `Bearer ${token}` } }
-      : {};
+    const axiosConfig = {
+      headers: {
+        ...(token && { Authorization: `Bearer ${token}` }),
+        Accept: "application/json",
+      },
+      withCredentials: true,
+    };
 
     const fetchToday = async () => {
       try {
@@ -156,9 +161,20 @@ function Main() {
     <Container>
       {weather && (
         <Weather>
-          <FiSun size={24} color="#FFD700" />
+          {weather.skyCondition === "1" && <FiSun size={24} color="#FFD700" />}
+          {(weather.skyCondition === "3" || weather.skyCondition === "4") && (
+            <FiCloud size={24} color="#A9A9A9" />
+          )}
+
           <Temp>{weather.temperature}</Temp>
-          <WeatherText>{weather.skyCondition}</WeatherText>
+
+          <WeatherText>
+            {weather.skyCondition === "1"
+              ? "맑음"
+              : weather.skyCondition === "3" || weather.skyCondition === "4"
+              ? "흐림"
+              : ""}
+          </WeatherText>
         </Weather>
       )}
 
@@ -167,14 +183,25 @@ function Main() {
         <CardRow>
           {todayRecs.slice(0, 2).map((rec) => (
             <Card key={rec.id}>
-              <Badge color="#B197FC">{rec.category}</Badge>
-              <CardTitle>{rec.title}</CardTitle>
-              <CardInfo>
-                <FaCalendarAlt /> {formatDateRange(rec.startDate, rec.endDate)}
-              </CardInfo>
-              <CardInfo>
-                <FaMapMarkerAlt /> {rec.place}
-              </CardInfo>
+              <Link
+                to={`/api/cultures/${rec.id}`}
+                style={{
+                  textDecoration: "none",
+                  color: "inherit",
+                  display: "block",
+                  height: "100%",
+                }}
+              >
+                <Badge color="#B197FC">{rec.category}</Badge>
+                <CardTitle>{rec.title}</CardTitle>
+                <CardInfo>
+                  <FaCalendarAlt />{" "}
+                  {formatDateRange(rec.startDate, rec.endDate)}
+                </CardInfo>
+                <CardInfo>
+                  <FaMapMarkerAlt /> {rec.place}
+                </CardInfo>
+              </Link>
             </Card>
           ))}
         </CardRow>
@@ -184,14 +211,24 @@ function Main() {
         <SectionTitle>이달의 추천</SectionTitle>
         {monthlyRecs.map((rec, idx) => (
           <FullCard key={rec.id} $bg={idx === 0 ? "#EDE7FF" : undefined}>
-            <Badge color="#FDA7DF">{rec.category}</Badge>
-            <CardTitle>{rec.title}</CardTitle>
-            <CardInfo>
-              <FaCalendarAlt /> {formatDateRange(rec.startDate, rec.endDate)}
-            </CardInfo>
-            <CardInfo>
-              <FaMapMarkerAlt /> {rec.place}
-            </CardInfo>
+            <Link
+              to={`/api/cultures/${rec.id}`}
+              style={{
+                textDecoration: "none",
+                color: "inherit",
+                display: "block",
+                height: "100%",
+              }}
+            >
+              <Badge color="#FDA7DF">{rec.category}</Badge>
+              <CardTitle>{rec.title}</CardTitle>
+              <CardInfo>
+                <FaCalendarAlt /> {formatDateRange(rec.startDate, rec.endDate)}
+              </CardInfo>
+              <CardInfo>
+                <FaMapMarkerAlt /> {rec.place}
+              </CardInfo>
+            </Link>
           </FullCard>
         ))}
       </Section>
